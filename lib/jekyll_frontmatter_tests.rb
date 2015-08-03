@@ -1,9 +1,22 @@
 require 'yaml'
 class FrontmatterTests < Jekyll::Command
   class << self
+    # Public: load the configuration file
+    #
+    # Assumes this is a standard jekyll site
     def config
     	@config ||= YAML.load_file '_config.yml'
     end
+
+    # Public: Load a schema from file.
+    #
+    # file - a string containing a filename
+    #
+    # Used throughout to load a specific file. In the future the directories
+    # where these schema files are located could be loaded from _config.yml
+    #
+    # Returns a hash loaded from the YAML doc or exits 1 if no schema file
+    # exists.
     def loadschema(file)
       schema = File.join("deploy", "tests", "schema", file)
     	if File.exists?(schema)
@@ -14,6 +27,15 @@ class FrontmatterTests < Jekyll::Command
       end
     end
 
+    # Public: processes a collection against a schema
+    #
+    # schmea - the hash-representation of a schema file
+    #
+    # Opens each file in the collection's expected directory and checks the
+    # file's frontmatter for the expected keys and the expected format of the
+    # values.
+    #
+    # Returns true or false depending on the success of the check.
     def process(schema)
     	dir = File.join(schema['config']['path'])
     	passfail = nil
@@ -32,13 +54,19 @@ class FrontmatterTests < Jekyll::Command
     	end
     end
 
-    def check_keys(data, keys, title)
+    # Public: checks a hash for expected keys
+    #
+    # target - the hash under test
+    # keys - an array of keys the data is expected to have, usually loaded from
+    #        a schema file by loadschema()
+    # title - A string representing `data`'s name
+    def check_keys(target, keys, title)
     	keys = keys - ['config']
-    	unless data.respond_to?('keys')
+    	unless target.respond_to?('keys')
     		puts "The file #{title} is missing all frontmatter.".red
     		return false
     	end
-    	diff = keys - data.keys
+    	diff = keys - target.keys
     	if diff == []
     		return true
     	else
@@ -50,7 +78,107 @@ class FrontmatterTests < Jekyll::Command
     	end
     end
 
-    # Works in progress: eventually, validate that the *values* match expected types
+    # Public: tests all documents that are "posts"
+    #
+    # Loads a schema called _posts.yml and processes all post documents against
+    # it.
+    def test_posts
+      puts 'testing posts'.green
+      yepnope = process(loadschema('_posts.yml'))
+      puts 'Finished testing'.green
+      yepnope
+    end
+
+    # Public: Tests only specific collection documents
+    #
+    # collections - a comma separated string of collection names.
+    #
+    # `collections` is split into an array and each document is loaded and
+    # processed against its respective schema.
+    def test_collections(collections)
+      yepnope = Array.new
+      unless collections.class == Array
+        require 'pry'; binding.pry
+      end
+      for c in collections
+        puts "Testing #{c}".green
+        yepnope.push process(loadschema("_#{c}.yml"))
+        puts "Finished testing #{c}".green
+      end
+      yepnope
+    end
+
+    # Public: Tests all collections described by a schema file at
+    # `deploy/tests/scema`
+    def test_everything
+      schema = Dir.open('deploy/tests/schema')
+      yepnope = Array.new
+      schema.each { |s|
+        if s.start_with?('_')
+          puts "Testing #{s}".green
+          yepnope.push process(loadschema(s))
+          puts "Finished testing #{s}".green
+        end
+      }
+      yepnope
+    end
+
+    # Public: Processes options passed throguh the command line, runs
+    # the appropriate tests.
+    #
+    # args - command line arguments (example: jekyll test [ARG])
+    # options - command line options (example: jekyll test -[option] [value])
+    #
+    # Depending on the flag passed (see `init_with_program`), runs the expected # test.
+    #
+    # Example: the following comamnd `jekyll test -p` will pass ``{'posts' =>
+    #          true}` as `options`. This will cause `test_frontmatter` to
+    #          compare all docs in _posts with the provided schema.
+    #
+    # The test runner pushes the result of each test into a `results` array and # exits `1` if any tests fail or `0` if all is well.
+    def test_frontmatter(args, options)
+      puts 'starting tests'
+      results = Array.new
+      if options['posts']
+        results.push test_posts
+      elsif options['collections']
+        collections = options['collections'].split(',')
+        results.push test_collections(collections)
+      else
+        results.push test_everything
+      end
+      results.keep_if { |t| t == false }
+      if results[0]
+        puts 'Tests finished!'
+        exit 0
+      else
+        puts "The test exited with errors, see above."
+        exit 1
+      end
+    end
+
+    # Internal: fired when `jekyll test` is run.
+    #
+    # When `jekyll test` runs, `test_frontmatter` is fired with options and args
+    # passed from the command line.
+    def init_with_program(prog)
+      prog.command(:test) do |c|
+        c.syntax "test [options]"
+        c.description 'Test your site for frontmatter.'
+
+        c.option 'posts', '-p', 'Target only posts'
+        c.option 'collections', '-c [COLLECTION]', 'Target a specific collection'
+        c.option 'all', '-a', 'Test all collections (Default)'
+
+        c.action do |args, options|
+          if options.empty?
+            options = {"all" => true}
+          end
+          test_frontmatter(args, options)
+        end
+      end
+    end
+    # Internal: eventually, validate that the *values* match expected types
     #
     # For example, if we expect the `date` key to be in yyyy-mm-dd format, validate
     # that it's been entered in that format. If we expect authors to be an array,
@@ -79,78 +207,6 @@ class FrontmatterTests < Jekyll::Command
     			return false
     		end
     	end
-    end
-
-    def test_posts
-      puts 'testing posts'.green
-      yepnope = process(loadschema('_posts.yml'))
-      puts 'Finished testing'.green
-      yepnope
-    end
-
-    def test_collections(collections)
-      yepnope = Array.new
-      unless collections.class == Array
-        require 'pry'; binding.pry
-      end
-      for c in collections
-        puts "Testing #{c}".green
-        yepnope.push process(loadschema("_#{c}.yml"))
-        puts "Finished testing #{c}".green
-      end
-      yepnope
-    end
-
-    def test_everything
-      schema = Dir.open('deploy/tests/schema')
-      yepnope = Array.new
-      schema.each { |s|
-        if s.start_with?('_')
-          puts "Testing #{s}".green
-          yepnope.push process(loadschema(s))
-          puts "Finished testing #{s}".green
-        end
-      }
-      yepnope
-    end
-
-    def test_frontmatter(args, options)
-      puts 'starting tests'
-      results = Array.new
-      if options['posts']
-        results.push test_posts
-      elsif options['collections']
-        collections = options['collections'].split(',')
-        results.push test_collections(collections)
-      else
-        results.push test_everything
-      end
-      results.keep_if { |t| t == false }
-      if results[0]
-        puts 'Tests finished!'
-        exit 0
-      else
-        puts "The test exited with errors, see above."
-        exit 1
-      end
-    end
-
-    def init_with_program(prog)
-      prog.command(:test) do |c|
-        c.syntax "test [options]"
-        c.description 'Test your site for frontmatter.'
-
-        c.option 'posts', '-p', 'Target only posts'
-        c.option 'collections', '-c [COLLECTION]', 'Target a specific collection'
-        c.option 'all', '-a', 'Test all collections (Default)'
-
-        c.action do |args, options|
-          if options.empty?
-            options = {"all" => true}
-          end
-          test_frontmatter(args, options)
-        end
-      end
     end
   end
 end

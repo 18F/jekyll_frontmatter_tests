@@ -42,6 +42,27 @@ A gem to add tests to your Jekyll site to make sure you're always including requ
     - [ ] Integers
     - [ ] Complex array validation (possibly through "sub-schema" defined in a "rules.yml" file)
 
+3. At the end of each schema file, add a `config` section that looks like this:
+    ```
+    config:
+      path: '_posts'
+      ignore:
+      - ..
+      - .
+      - .DS_Store
+      optional: ['layout', 'date']
+    ```
+    This section contains some information that the test runner uses to know some things about your environment.
+
+    Required in this section:
+    * The `path` variable is used to point to the collection documents.
+    * The `ignore` section can be used to exclude certain files in the collection directory from testing. If you're okay with this document not passing tests, add it to the ignore list.
+
+    Optional:
+    * `optional` is used to point out frontmatter fields that a document might have but isn't required.
+
+    Right now we don't do anything with `optional` but a future version might allow you to pass a flag to include these fields. This could be useful if you expect these fields to be in a specific format.
+
 ### Flags
 
 `-a` - The default, checks all collections with a schema document at `/deploy/tests/schema`
@@ -51,7 +72,10 @@ A gem to add tests to your Jekyll site to make sure you're always including requ
 Again, by default `jekyll test` runs with `-a`, the flag is there if you want to be explicit. The other flags are useful if you have a site with many collections and many documents inside them. 18f.gsa.gov for example has hundreds of `_posts` and `_team` documents, running `-c team` generates cleaner results if we're only interested in our "team" documents.
 
 ### Contributing
+@gboone wrote most of the code in here so it probably stinks!
 
 * If it's a bug and you don't want to get messy with Ruby, file an issue!
 * If it's a bug you already fixed, fork the repo and open a pull request!
 * If you're using it in the wild, file an issue and let us know!
+
+See our CONTRIBUTING.md file for more on how to get involved.
