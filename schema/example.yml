@@ -1,4 +1,5 @@
 title: "String"
+authors: "Array"
 config:
   path: "_posts"
   ignore:
