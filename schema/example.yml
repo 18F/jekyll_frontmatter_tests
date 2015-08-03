@@ -1,0 +1,9 @@
+title: "String"
+config:
+  path: "_posts"
+  ignore:
+  - "README.md"
+  - ".."
+  - "."
+  - ".DS_Store"
+  optional: ["layout", "date"]
