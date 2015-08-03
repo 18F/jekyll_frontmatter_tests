@@ -8,5 +8,5 @@ Gem::Specification.new do |s|
   s.email       = ['gregory.boone@gsa.gov']
   s.version     = '0.0.2'
   s.files       = ['lib/jekyll_frontmatter_tests.rb']
-  s.homepage    = 'https://github.com/18f/jekyll-frontmatter-tests'
+  s.homepage    = 'https://rubygems.org/gems/jekyll_frontmatter_tests'
 end
