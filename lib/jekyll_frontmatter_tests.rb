@@ -86,7 +86,7 @@ class FrontmatterTests < Jekyll::Command
     # it.
     def test_posts
       puts 'testing posts'.green
-      yepnope = process(loadschema('_posts.yml'))
+      yepnope = Array.new.push process(loadschema('_posts.yml'))
       puts 'Finished testing'.green
       yepnope
     end
@@ -137,17 +137,15 @@ class FrontmatterTests < Jekyll::Command
     # The test runner pushes the result of each test into a `results` array and # exits `1` if any tests fail or `0` if all is well.
     def test_frontmatter(args, options)
       puts 'starting tests'
-      results = Array.new
       if options['posts']
-        results.push test_posts
+        results = test_posts
       elsif options['collections']
         collections = options['collections'].split(',')
-        results.push test_collections(collections)
+        results = test_collections(collections)
       else
-        results.push test_everything
+        results = test_everything
       end
-      results.keep_if { |t| t == false }
-      if results.empty?
+      unless results.find_index{ |r| r == false }
         puts 'Tests finished!'
         exit 0
       else

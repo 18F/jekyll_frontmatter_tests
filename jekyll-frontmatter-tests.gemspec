@@ -6,7 +6,7 @@ Gem::Specification.new do |s|
   s.license     = 'CC0'
   s.authors     = ['Greg Boone']
   s.email       = ['gregory.boone@gsa.gov']
-  s.version     = '0.0.3'
+  s.version     = '0.0.4'
   s.files       = ['lib/jekyll_frontmatter_tests.rb']
   s.homepage    = 'https://rubygems.org/gems/jekyll_frontmatter_tests'
 end
