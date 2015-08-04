@@ -38,18 +38,20 @@ class FrontmatterTests < Jekyll::Command
     # Returns true or false depending on the success of the check.
     def process(schema)
     	dir = File.join(schema['config']['path'])
-    	passfail = nil
+    	passfail = Array.new
     	Dir.open(dir).each do |f|
     		file = File.open(File.join(dir, f))
     		unless schema['config']['ignore'].include?(f)
     			data = YAML.load_file(file)
-    			passfail = check_keys(data, schema.keys, f)
-    			passfail = check_types(data, schema)
+    			passfail.push check_keys(data, schema.keys, f)
+    			passfail.push check_types(data, schema)
     		end
     	end
-    	if passfail
+      passfail.keep_if { |p| p == false }
+    	if passfail.empty?
     		return true
     	else
+        puts "There were #{passfail.count} errors".red
     		return false
     	end
     end
@@ -67,12 +69,12 @@ class FrontmatterTests < Jekyll::Command
     		return false
     	end
     	diff = keys - target.keys
-    	if diff == []
+      if diff.empty?
     		return true
     	else
-    		puts "The file #{title} is missing the following keys:".red
+    		puts "\nThe file #{title} is missing the following keys:".red
     		for k in diff
-    			puts "    * #{k}\n".red
+    			puts "    * #{k}".red
     		end
     		return false
     	end
@@ -97,9 +99,6 @@ class FrontmatterTests < Jekyll::Command
     # processed against its respective schema.
     def test_collections(collections)
       yepnope = Array.new
-      unless collections.class == Array
-        require 'pry'; binding.pry
-      end
       for c in collections
         puts "Testing #{c}".green
         yepnope.push process(loadschema("_#{c}.yml"))
@@ -148,7 +147,7 @@ class FrontmatterTests < Jekyll::Command
         results.push test_everything
       end
       results.keep_if { |t| t == false }
-      if results[0]
+      if results.empty?
         puts 'Tests finished!'
         exit 0
       else
@@ -200,7 +199,6 @@ class FrontmatterTests < Jekyll::Command
     		elsif type == "String" and data[key].class == String
     			return true
     		elsif type == "Date"
-          require 'pry'; binding.pry
     			return true
     		else
     			puts "    * Data is of the wrong type for key #{key}, expected #{type} but was #{data[key].class}\n\n"
