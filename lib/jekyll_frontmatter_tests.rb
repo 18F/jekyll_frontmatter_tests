@@ -5,7 +5,11 @@ class FrontmatterTests < Jekyll::Command
     #
     # Assumes this is a standard jekyll site
     def config
-    	@config ||= YAML.load_file '_config.yml'
+      config = Jekyll.configuration
+      if config.key('frontmatter_tests').nil?
+        config['frontmatter_tests'] = {'path': File.join("deploy", "tests", "schema")}
+      end
+      @config ||= config['frontmatter_tests']
     end
 
     # Public: Load a schema from file.
