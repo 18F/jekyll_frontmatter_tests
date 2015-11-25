@@ -7,7 +7,7 @@ class FrontmatterTests < Jekyll::Command
     def config
       config = Jekyll.configuration
       if config.key('frontmatter_tests').nil?
-        config['frontmatter_tests'] = {'path': File.join("deploy", "tests", "schema")}
+        config['frontmatter_tests'] = {'path' => File.join("deploy", "tests", "schema")}
       end
       @config ||= config['frontmatter_tests']
     end
