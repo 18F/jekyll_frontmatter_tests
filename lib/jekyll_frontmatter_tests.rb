@@ -33,17 +33,20 @@ class FrontmatterTests < Jekyll::Command
 
     # Public: processes a collection against a schema
     #
-    # schmea - the hash-representation of a schema file
+    # schema - the hash-representation of a schema file
     #
     # Opens each file in the collection's expected directory and checks the
     # file's frontmatter for the expected keys and the expected format of the
     # values.
+    #
+    # NOTE - As it iterates through files, subdirectories will be ignored
     #
     # Returns true or false depending on the success of the check.
     def process(schema)
     	dir = File.join(schema['config']['path'])
     	passfail = Array.new
     	Dir.open(dir).each do |f|
+        next if File.directory?(File.join(dir, f))
     		file = File.open(File.join(dir, f))
     		unless schema['config']['ignore'].include?(f)
     			data = YAML.load_file(file)
