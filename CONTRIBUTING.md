@@ -1,8 +1,8 @@
 ## Where Contributions Go
 
-Submit contributions to https://github.com/18F/jekyll-frontmatter-tests as a pull request to the `master` branch.
+Submit contributions to https://github.com/18F/jekyll_frontmatter_tests as a pull request to the `master` branch.
 
-File issues with bug reports or suggestions at https://github.com/18F/jekyll-frontmatter-tests/issues/new/
+File issues with bug reports or suggestions at https://github.com/18F/jekyll_frontmatter_tests/issues/new/
 
 ## Public domain
 
