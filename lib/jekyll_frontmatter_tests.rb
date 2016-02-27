@@ -46,7 +46,7 @@ class FrontmatterTests < Jekyll::Command
     	dir = File.join(schema['config']['path'])
     	passfail = Array.new
     	Dir.open(dir).each do |f|
-        next if File.directory?(File.join(dir, f))
+    		next if File.directory?(File.join(dir, f))
     		file = File.open(File.join(dir, f))
     		unless schema['config']['ignore'].include?(f)
     			data = YAML.load_file(file)
