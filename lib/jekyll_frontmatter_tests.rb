@@ -1,17 +1,6 @@
 require 'yaml'
 class FrontmatterTests < Jekyll::Command
   class << self
-    # Public: load the configuration file
-    #
-    # Assumes this is a standard jekyll site
-    def config
-      config = Jekyll.configuration
-      if config.key('frontmatter_tests').nil?
-        config['frontmatter_tests'] = {'path' => File.join("deploy", "tests", "schema")}
-      end
-      @config ||= config['frontmatter_tests']
-    end
-
     # Public: Load a schema from file.
     #
     # file - a string containing a filename
@@ -22,7 +11,7 @@ class FrontmatterTests < Jekyll::Command
     # Returns a hash loaded from the YAML doc or exits 1 if no schema file
     # exists.
     def loadschema(file)
-      schema = File.join("deploy", "tests", "schema", file)
+      schema = File.join(@schema['path'], file)
     	if File.exists?(schema)
         YAML.load_file(schema)
       else
@@ -114,7 +103,7 @@ class FrontmatterTests < Jekyll::Command
     # Public: Tests all collections described by a schema file at
     # `deploy/tests/scema`
     def test_everything
-      schema = Dir.open('deploy/tests/schema')
+      schema = Dir.open(@schema['path'])
       yepnope = Array.new
       schema.each { |s|
         if s.start_with?('_')
@@ -140,6 +129,7 @@ class FrontmatterTests < Jekyll::Command
     #
     # The test runner pushes the result of each test into a `results` array and # exits `1` if any tests fail or `0` if all is well.
     def test_frontmatter(args, options)
+
       puts 'starting tests'
       if options['posts']
         results = test_posts
@@ -163,6 +153,11 @@ class FrontmatterTests < Jekyll::Command
     # When `jekyll test` runs, `test_frontmatter` is fired with options and args
     # passed from the command line.
     def init_with_program(prog)
+      config = Jekyll.configuration
+      unless config.key?('frontmatter_tests')
+        config['frontmatter_tests'] = {'path' => File.join("deploy", "tests", "schema")}
+      end
+      @schema ||= config['frontmatter_tests']
       prog.command(:test) do |c|
         c.syntax "test [options]"
         c.description 'Test your site for frontmatter.'
