@@ -12,7 +12,7 @@ class FrontmatterTests < Jekyll::Command
     # exists.
     def loadschema(file)
       schema = File.join(@schema['path'], file)
-    	if File.exists?(schema)
+      if File.exist?(schema)
         YAML.load_file(schema)
       else
         puts "No schema for #{file}"
@@ -32,24 +32,23 @@ class FrontmatterTests < Jekyll::Command
     #
     # Returns true or false depending on the success of the check.
     def process(schema)
-    	dir = File.join(schema['config']['path'])
-    	passfail = Array.new
-    	Dir.open(dir).each do |f|
-    		next if File.directory?(File.join(dir, f))
-    		file = File.open(File.join(dir, f))
-    		unless schema['config']['ignore'].include?(f)
-    			data = YAML.load_file(file)
-    			passfail.push check_keys(data, schema.keys, f)
-    			passfail.push check_types(data, schema)
-    		end
-    	end
+      dir = File.join(schema['config']['path'])
+      passfail = []
+      Dir.open(dir).each do |f|
+        next if File.directory?(File.join(dir, f))
+        file = File.open(File.join(dir, f))
+        next if schema['config']['ignore'].include?(f)
+        data = YAML.load_file(file)
+        passfail.push check_keys(data, schema.keys, f)
+        passfail.push check_types(data, schema)
+      end
       passfail.keep_if { |p| p == false }
-    	if passfail.empty?
-    		return true
-    	else
+      if passfail.empty?
+        return true
+      else
         puts "There were #{passfail.count} errors".red
-    		return false
-    	end
+        return false
+      end
     end
 
     # Public: checks a hash for expected keys
@@ -59,21 +58,21 @@ class FrontmatterTests < Jekyll::Command
     #        a schema file by loadschema()
     # title - A string representing `data`'s name
     def check_keys(target, keys, title)
-    	keys = keys - ['config']
-    	unless target.respond_to?('keys')
-    		puts "The file #{title} is missing all frontmatter.".red
-    		return false
-    	end
-    	diff = keys - target.keys
+      keys -= ['config']
+      unless target.respond_to?('keys')
+        puts "The file #{title} is missing all frontmatter.".red
+        return false
+      end
+      diff = keys - target.keys
       if diff.empty?
-    		return true
-    	else
-    		puts "\nThe file #{title} is missing the following keys:".red
-    		for k in diff
-    			puts "    * #{k}".red
-    		end
-    		return false
-    	end
+        return true
+      else
+        puts "\nThe file #{title} is missing the following keys:".red
+        for k in diff
+          puts "    * #{k}".red
+        end
+        return false
+      end
     end
 
     # Public: tests all documents that are "posts"
@@ -82,7 +81,7 @@ class FrontmatterTests < Jekyll::Command
     # it.
     def test_posts
       puts 'testing posts'.green
-      yepnope = Array.new.push process(loadschema('_posts.yml'))
+      yepnope = [].push process(loadschema('_posts.yml'))
       puts 'Finished testing'.green
       yepnope
     end
@@ -94,7 +93,7 @@ class FrontmatterTests < Jekyll::Command
     # `collections` is split into an array and each document is loaded and
     # processed against its respective schema.
     def test_collections(collections)
-      yepnope = Array.new
+      yepnope = []
       for c in collections
         puts "Testing #{c}".green
         yepnope.push process(loadschema("_#{c}.yml"))
@@ -107,14 +106,13 @@ class FrontmatterTests < Jekyll::Command
     # `deploy/tests/scema`
     def test_everything
       schema = Dir.open(@schema['path'])
-      yepnope = Array.new
-      schema.each { |s|
-        if s.start_with?('_')
-          puts "Testing #{s}".green
-          yepnope.push process(loadschema(s))
-          puts "Finished testing #{s}".green
-        end
-      }
+      yepnope = []
+      schema.each do |s|
+        next unless s.start_with?('_')
+        puts "Testing #{s}".green
+        yepnope.push process(loadschema(s))
+        puts "Finished testing #{s}".green
+      end
       yepnope
     end
 
@@ -131,8 +129,7 @@ class FrontmatterTests < Jekyll::Command
     #          compare all docs in _posts with the provided schema.
     #
     # The test runner pushes the result of each test into a `results` array and # exits `1` if any tests fail or `0` if all is well.
-    def test_frontmatter(args, options)
-
+    def test_frontmatter(_args, options)
       puts 'starting tests'
       if options['posts']
         results = test_posts
@@ -142,12 +139,12 @@ class FrontmatterTests < Jekyll::Command
       else
         results = test_everything
       end
-      unless results.find_index{ |r| r == false }
+      if results.find_index { |r| r == false }
+        puts 'The test exited with errors, see above.'
+        exit 1
+      else
         puts 'Tests finished!'
         exit 0
-      else
-        puts "The test exited with errors, see above."
-        exit 1
       end
     end
 
@@ -158,11 +155,11 @@ class FrontmatterTests < Jekyll::Command
     def init_with_program(prog)
       config = Jekyll.configuration
       unless config.key?('frontmatter_tests')
-        config['frontmatter_tests'] = {'path' => File.join("deploy", "tests", "schema")}
+        config['frontmatter_tests'] = { 'path' => File.join('deploy', 'tests', 'schema') }
       end
       @schema ||= config['frontmatter_tests']
       prog.command(:test) do |c|
-        c.syntax "test [options]"
+        c.syntax 'test [options]'
         c.description 'Test your site for frontmatter.'
 
         c.option 'posts', '-p', 'Target only posts'
@@ -170,41 +167,38 @@ class FrontmatterTests < Jekyll::Command
         c.option 'all', '-a', 'Test all collections (Default)'
 
         c.action do |args, options|
-          if options.empty?
-            options = {"all" => true}
-          end
+          options = { 'all' => true } if options.empty?
           test_frontmatter(args, options)
         end
       end
     end
+
     # Internal: eventually, validate that the *values* match expected types
     #
     # For example, if we expect the `date` key to be in yyyy-mm-dd format, validate
     # that it's been entered in that format. If we expect authors to be an array,
     # make sure we're getting an array.
     def check_types(data, schema)
-    	unless data.respond_to?('keys')
-    		return false
-    	end
-    	for s in schema
-    		key  = s[0]
-    		if s[1].class == Hash
-    			type = s[1]['type']
-    		else
-    			type = s[1]
-    		end
+      return false unless data.respond_to?('keys')
+      for s in schema
+        key = s[0]
+        type = if s[1].class == Hash
+                 s[1]['type']
+               else
+                 s[1]
+               end
 
-    		if type == "Array" and data[key].class == Array
-    			return true
-    		elsif type == "String" and data[key].class == String
-    			return true
-    		elsif type == "Date"
-    			return true
-    		else
-    			puts "    * Data is of the wrong type for key #{key}, expected #{type} but was #{data[key].class}\n\n"
-    			return false
-    		end
-    	end
+        if type == 'Array' && data[key].class == Array
+          return true
+        elsif type == 'String' && data[key].class == String
+          return true
+        elsif type == 'Date'
+          return true
+        else
+          puts "    * Data is of the wrong type for key #{key}, expected #{type} but was #{data[key].class}\n\n"
+          return false
+        end
+      end
     end
   end
 end
