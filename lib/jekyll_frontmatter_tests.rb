@@ -43,7 +43,7 @@ class FrontmatterTests < Jekyll::Command
         data = YAML.load_file(file)
 
         passfail.push check_keys(data, schema.keys, f)
-        passfail.push check_types(data, schema, File.join(dir,f))
+        passfail.push check_types(data, schema, File.join(dir, f))
       end
       passfail.keep_if { |p| p == false }
       if passfail.empty?
@@ -191,41 +191,39 @@ class FrontmatterTests < Jekyll::Command
                else
                  value
                end
-        'testing'
-        if is_required?(key, schema)
-          if key == 'config'
-            next
-          elsif value.class == Hash
-            if value.keys.include? 'one_of'
-              if !is_one_of?(data[key], value['one_of'])
-                puts "    * '#{data[key]}' was not in the list of expected values in #{file}.".red
-                puts "      expected one of the following: #{s[1]['one_of']}\n".red
-                return false
-              else
-                next
-              end
+        next unless required?(key, schema)
+        if key == 'config'
+          next
+        elsif value.class == Hash
+          if value.keys.include? 'one_of'
+            if !one_of?(data[key], value['one_of'])
+              puts "    * '#{data[key]}' was not in the list of expected values in #{file}.".red
+              puts "      expected one of the following: #{s[1]['one_of']}\n".red
+              return false
             else
               next
             end
-          elsif type == 'Array' && data[key].class == Array
-            next
-          elsif type == 'Boolean' && data[key].is_a?(Boolean)
-            next
-          elsif type == 'String' && data[key].class == String
-            next
-          elsif type == 'Date'
-            next
           else
-            puts "    * '#{key}' is not a valid key in #{file}. Expected #{type} but was #{data[key].class}\n\n"
-            return false
+            next
           end
+        elsif type == 'Array' && data[key].class == Array
+          next
+        elsif type == 'Boolean' && data[key].is_a?(Boolean)
+          next
+        elsif type == 'String' && data[key].class == String
+          next
+        elsif type == 'Date'
+          next
+        else
+          puts "    * '#{key}' is not a valid key in #{file}. Expected #{type} but was #{data[key].class}\n\n"
+          return false
         end
       end
     end
 
     private
 
-    def is_one_of?(data, schema)
+    def one_of?(data, schema)
       if schema.instance_of?(Array) && data.instance_of?(Array)
       elsif schema.include? '.yml'
         schema_list = YAML.load_file(File.join(Dir.pwd, 'tests', 'schema', schema))
@@ -235,14 +233,13 @@ class FrontmatterTests < Jekyll::Command
       end
     end
 
-    def is_required?(key, schema)
+    def required?(key, schema)
       if schema['config']
         !schema['config']['optional'].include? key
       else
         true
       end
     end
-
   end
 end
 
