@@ -1,0 +1,24 @@
+source 'https://rubygems.org'
+
+ruby RUBY_VERSION
+gem 'jekyll', '~> 3.1'
+# This is the default theme for new Jekyll sites. You may change this to anything you like.
+gem "minima", "~> 2.0"
+
+
+group :jekyll_plugins do
+  gem 'jekyll-archives'
+  gem "jekyll-feed", "~> 0.6"
+  gem 'jekyll_frontmatter_tests', path: './../..'
+end
+
+group :development do
+  gem 'capybara'
+  gem 'chromedriver-helper'
+  gem 'colorize'
+  gem 'pry'
+  gem 'rack-jekyll'
+  gem 'rb-readline'
+  gem 'rspec'
+  gem 'selenium-webdriver'
+end

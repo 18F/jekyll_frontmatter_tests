@@ -1,7 +1,11 @@
 require 'yaml'
 require 'pry'
+require 'rb-readline'
+require_relative 'jekyll_frontmatter_tests_helper'
 
 class FrontmatterTests < Jekyll::Command
+  extend JekyllFrontmatterTestsHelper
+
   class << self
     # Public: Load a schema from file.
     #
@@ -223,23 +227,23 @@ class FrontmatterTests < Jekyll::Command
 
     private
 
-    def one_of?(data, schema)
-      if schema.instance_of?(Array) && data.instance_of?(Array)
-      elsif schema.include? '.yml'
-        schema_list = YAML.load_file(File.join(Dir.pwd, 'tests', 'schema', schema))
-        (schema_list & data).count == data.count
-      else
-        schema.include? data
-      end
-    end
+    # def one_of?(data, schema)
+    #   if schema.instance_of?(Array) && data.instance_of?(Array)
+    #   elsif schema.include? '.yml'
+    #     schema_list = YAML.load_file(File.join(Dir.pwd, 'tests', 'schema', schema))
+    #     (schema_list & data).count == data.count
+    #   else
+    #     schema.include? data
+    #   end
+    # end
 
-    def required?(key, schema)
-      if schema['config']
-        !schema['config']['optional'].include? key
-      else
-        true
-      end
-    end
+    # def required?(key, schema)
+    #   if schema['config']
+    #     !schema['config']['optional'].include? key
+    #   else
+    #     true
+    #   end
+    # end
   end
 end
 
