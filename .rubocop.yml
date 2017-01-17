@@ -11,6 +11,7 @@ AllCops:
   Exclude:
     - 'bin/**/*'
     - 'db/schema.rb'
+    - 'test/jekyll_project/**/*'
   UseCache: true
 
 Metrics/AbcSize:
@@ -56,6 +57,10 @@ Metrics/ModuleLength:
   Enabled: true
   Exclude:
   - spec/**/*
+
+Metrics/BlockLength:
+  Exclude:
+    - spec/**/*
 
 Rails/TimeZone:
   # The value `strict` means that `Time` should be used with `zone`.
