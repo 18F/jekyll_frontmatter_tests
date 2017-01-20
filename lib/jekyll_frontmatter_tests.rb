@@ -1,7 +1,5 @@
 require 'yaml'
 require 'jekyll'
-require 'pry'
-require 'rb-readline'
 
 require_relative 'jekyll_frontmatter_tests/jekyll_frontmatter_tests_config'
 require_relative 'jekyll_frontmatter_tests/jekyll_frontmatter_tests_initializer'
