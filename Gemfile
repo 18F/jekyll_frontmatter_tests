@@ -10,6 +10,7 @@ group :test do
   gem 'colorize'
   gem 'pry'
   gem 'rack-jekyll'
+  gem 'rake'
   gem 'rb-readline'
   gem 'rspec'
   gem 'selenium-webdriver'

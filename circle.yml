@@ -5,7 +5,7 @@ machine:
 
 dependencies:
   pre:
-    - bundle install --binstubs
+    - gem install bundler
 
 test:
   post:
