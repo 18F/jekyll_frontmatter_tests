@@ -1,5 +1,3 @@
-require 'pry'
-require 'yaml'
 require 'jekyll'
 
 class FrontmatterTests < Jekyll::Command
