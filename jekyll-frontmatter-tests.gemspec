@@ -6,7 +6,7 @@ Gem::Specification.new do |s|
   s.license     = 'CC0'
   s.authors     = ['Greg Boone']
   s.email       = ['gregory.boone@gsa.gov']
-  s.version     = '0.0.12'
+  s.version     = '0.0.13'
   s.files       = %w{
                    jekyll-frontmatter-tests.gemspec
                    Gemfile
