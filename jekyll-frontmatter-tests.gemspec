@@ -22,7 +22,6 @@ Gem::Specification.new do |s|
   s.add_development_dependency "capybara", '~> 2.11'
   s.add_development_dependency "chromedriver-helper", '~> 1.0'
   s.add_development_dependency "rack-jekyll", '~> 0.5'
-  s.add_development_dependency "rake", '~> 1.6'
   s.add_development_dependency "rb-readline", '~> 0.5.3'
   s.add_development_dependency "selenium-webdriver", '~> 3.0'
   s.add_development_dependency "rubocop", '~> 0.47.1'
