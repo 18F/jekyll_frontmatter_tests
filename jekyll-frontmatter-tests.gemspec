@@ -6,11 +6,24 @@ Gem::Specification.new do |s|
   s.license     = 'CC0'
   s.authors     = ['Greg Boone']
   s.email       = ['gregory.boone@gsa.gov']
-  s.version     = '0.0.9'
-  s.files       = ['lib/jekyll_frontmatter_tests.rb']
+  s.version     = '0.0.12'
+  s.files       = %w{
+                   jekyll-frontmatter-tests.gemspec
+                   Gemfile
+                 } +
+                 Dir.glob("lib/**/*")
   s.homepage    = 'https://rubygems.org/gems/jekyll_frontmatter_tests'
+  s.bindir = 'bin'
+  s.post_install_message = "Happy testing!"
   s.add_dependency "jekyll", [">= 2.0", "< 4.0"]
   s.add_development_dependency "bundler", "~> 1.7"
   s.add_development_dependency "rspec", "~> 3.0"
   s.add_development_dependency "pry", '~> 0'
+  s.add_development_dependency "capybara", '~> 2.11'
+  s.add_development_dependency "chromedriver-helper", '~> 1.0'
+  s.add_development_dependency "rack-jekyll", '~> 0.5'
+  s.add_development_dependency "rake", '~> 1.6'
+  s.add_development_dependency "rb-readline", '~> 0.5.3'
+  s.add_development_dependency "selenium-webdriver", '~> 3.0'
+  s.add_development_dependency "rubocop", '~> 0.47.1'
 end
