@@ -42,6 +42,7 @@ class FrontmatterTests < Jekyll::Command
                else
                  value
                end
+
         next unless required?(key, schema)
         if key == 'config'
           next

@@ -17,10 +17,17 @@ class FrontmatterTests < Jekyll::Command
     end
 
     def required?(key, schema)
-      if schema['config']
-        !schema['config']['optional'].include? key
+      is_required = true
+      is_primary = schema[key]
+      schema['config'] = schema['config'] || { 'optional': [] }
+      is_optional = schema['config']['optional'].include?(key)
+
+      if is_primary && !is_optional
+        is_required
+      elsif (is_primary && is_optional) || (!is_primary && is_optional)
+        !is_required
       else
-        true
+        raise 'The key provided is not in the schema.'
       end
     end
   end
