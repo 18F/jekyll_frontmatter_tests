@@ -95,4 +95,28 @@ RSpec.describe Jekyll::Command::FrontmatterTests do
       end
     end
   end
+
+  describe 'JekyllFrontmatterTestsHelper#follows_rules?' do
+    context 'one rule: no-dash' do
+      it 'has one tag without dashes' do
+        expect(@helper.follows_rules?('tag', ['no-dash'])).to be true
+      end
+
+      it 'has multiple tags without dashes' do
+        expect(@helper.follows_rules?(['tag', 'tag2'], ['no-dash'])).to be true
+      end
+
+      it 'has one tag with dashes' do
+        expect(@helper.follows_rules?('tag-with-dashes', ['no-dash'])).to be false
+      end
+
+      it 'has multiple tags, some with dashes' do
+        expect(@helper.follows_rules?(['tag', 'tag-2'], ['no-dash'])).to be false
+      end
+
+      it 'has multiple tags, all with dashes' do
+        expect(@helper.follows_rules?(['tag-1', 'tag-2'], ['no-dash'])).to be false
+      end
+    end
+  end
 end

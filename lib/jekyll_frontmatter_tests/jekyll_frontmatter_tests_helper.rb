@@ -16,6 +16,16 @@ class FrontmatterTests < Jekyll::Command
       end
     end
 
+    def follows_rules?(value, rules)
+      if rules.include?('no-dash') && rules.include?('lowercase')
+        FrontmatterRules.dashless?(value) && FrontmatterRules.lowercase?(value)
+      elsif rules.include?('no-dash') && !rules.include?('lowercase')
+        FrontmatterRules.dashless?(value)
+      elsif !rules.include?('no-dash') && rules.include?('lowercase')
+        FrontmatterRules.lowercase?(value)
+      end
+    end
+
     def required?(key, schema)
       is_required = true
       is_primary = schema[key]

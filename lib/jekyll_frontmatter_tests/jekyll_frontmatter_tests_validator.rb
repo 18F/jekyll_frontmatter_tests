@@ -27,6 +27,10 @@ class FrontmatterTests < Jekyll::Command
       end
     end
 
+    def basepath
+      File.join(Dir.pwd, 'tests', 'schema')
+    end
+
     # Internal: eventually, validate that the *values* match expected types
     #
     # For example, if we expect the `date` key to be in yyyy-mm-dd format, validate
@@ -47,18 +51,11 @@ class FrontmatterTests < Jekyll::Command
         if key == 'config'
           next
         elsif value.class == Hash
-          if value.keys.include? 'one_of'
-            if !one_of?(data[key], value['one_of'])
-              puts "    * '#{data[key]}' was not in the list " \
-                   "of expected values in #{file}.".red
-              puts "      expected one of the following: #{s[1]['one_of']}\n".red
-              return false
-            else
-              next
-            end
-          else
-            next
-          end
+          next unless value.keys.include?('one_of') || value.keys.include?('rules')
+          violate_one_of = check_one_of(data, key, value) == false
+          violate_rules = check_rules(data, key, value) == false
+          return false if violate_one_of || violate_rules
+
         elsif type == 'Array' && data[key].class == Array
           next
         elsif type == 'Boolean' && data[key].is_a?(Boolean)
@@ -68,10 +65,29 @@ class FrontmatterTests < Jekyll::Command
         elsif type == 'Date'
           next
         else
-          puts "    * '#{key}' is not a valid key in #{file}. " \
+          puts "    * invalid value for '#{key}' in #{file}. " \
                "Expected #{type} but was #{data[key].class}\n\n"
           return false
         end
+      end
+    end
+
+    def check_one_of(data, key, value)
+      if value.keys.include?('one_of') && !one_of?(data[key], value['one_of'])
+        puts "    * One of error: One of '#{data[key]}' was not".red
+        puts "                    in the list of expected values in".red
+        puts "                    #{File.join(basepath, value['one_of'])}\n".yellow
+
+        false
+      end
+    end
+
+    def check_rules(data, key, value)
+      if value.keys.include?('rules') && !follows_rules?(data[key], value['rules'])
+        puts "    * Rules error: One of '#{data[key]}'".red
+        puts "                   doesn't follow the rules defined in".red
+        puts "                   #{basepath}/rules.yml\n".yellow
+        false
       end
     end
   end
