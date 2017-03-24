@@ -33,6 +33,16 @@ A gem to add tests to your Jekyll site to make sure you're always including requ
     authors: "Array"
     ```
 
+    If you have an attribute set to Array, you can optionally provide more complex validation. What the following indicates is that we want `tags` to be an array, that has only the tags `trees` and/or `bushes`, without dashes or uppercase characters.
+
+    ``` yml
+    ---
+    tags:
+      type: Array
+      one_of: ['trees', 'bushes']
+      rules: [no-dash, lowercase]
+    ```
+
     There is an `example.yml` file in this repo to give you a sense of how to structure the file.
 
     Eventually we want to support the following types:
@@ -40,7 +50,7 @@ A gem to add tests to your Jekyll site to make sure you're always including requ
     - [x] Array
     - [ ] Date strings
     - [ ] Integers
-    - [ ] Complex array validation (possibly through "sub-schema" defined in a "rules.yml" file)
+    - [x] Complex array validation
 
 3. At the end of each schema file, add a `config` section that looks like this:
     ```
