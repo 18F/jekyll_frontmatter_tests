@@ -1,0 +1,6 @@
+no-dash:
+  exceptions:
+  - test-exception
+lowercase:
+  exceptions:
+  - Test

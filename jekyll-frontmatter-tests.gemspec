@@ -1,3 +1,7 @@
+lib = File.expand_path('../lib', __FILE__)
+$LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
+require 'jekyll_frontmatter_tests/version'
+
 Gem::Specification.new do |s|
   s.description = 'Tests the frontmatter of posts and other collection documents against a schema'
   s.summary     = 'Tests jekyll documents for proper frontmatter'
@@ -6,7 +10,7 @@ Gem::Specification.new do |s|
   s.license     = 'CC0'
   s.authors     = ['Greg Boone']
   s.email       = ['gregory.boone@gsa.gov']
-  s.version     = '0.0.13'
+  s.version     = JekyllFrontmatterTests::VERSION
   s.files       = %w{
                    jekyll-frontmatter-tests.gemspec
                    Gemfile
